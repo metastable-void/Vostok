@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Vostok</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <h1>Vostok</h1>
+    <div id="errors"></div>
+    <div id="signed-out">
+      <fieldset>
+        <legend>Sign in or sign up</legend>
+        <p>Username: <input id="username" type="text" placeholder="Username" required></p>
+        <p>Password: <input id="password" type="password" placeholder="Password" required></p>
+        <button id="sign-in">Sign in or sign up</button>
+      </fieldset>
+    </div>
+    <div id="signed-in" hidden>
+      <p><button id="sign-out">Sign out</button></p>
+      <details>
+        <summary>Change password</summary>
+        <p>Old password: <input id="old-password" type="password" placeholder="Old password" required></p>
+        <p>New password: <input id="new-password" type="password" placeholder="New password" required></p>
+        <button id="change-password">Change password</button>
+      </details>
+    </div>
+    <script defer src="index.js"></script>
+  </body>
+</html>

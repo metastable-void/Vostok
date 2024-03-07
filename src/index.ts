@@ -117,7 +117,7 @@ app.get('/api/check-password', async (req, res) => {
   res.json({ result: true });
 });
 
-app.get('/api/create-or-update-user', async (req, res) => {
+app.post('/api/create-or-update-user', async (req, res) => {
   const { screen_name, password, old_password } = req.query;
   const data = await getData();
   let data_dir_name = generateDataDirName();
