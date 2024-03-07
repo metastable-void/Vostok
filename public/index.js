@@ -111,6 +111,7 @@ document.getElementById('sign-in').addEventListener('click', () => {
     document.getElementById('password').value = '';
     document.getElementById('signed-out').hidden = true;
     document.getElementById('signed-in').hidden = false;
+    reloadMusicList();
   } catch (e) {
     console.error(e);
     displayError(e);
@@ -158,6 +159,8 @@ document.getElementById('upload').addEventListener('click', async () => {
       throw new Error(result.error);
     }
     document.getElementById('file').value = '';
+    document.getElementById('file-size').textContent = '-';
+    reloadMusicList();
   } catch (e) {
     console.error(e);
     displayError(e);
