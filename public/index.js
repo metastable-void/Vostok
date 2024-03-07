@@ -37,6 +37,7 @@ const signInOrSignUp = async () => {
   const password = document.getElementById('password').value;
   const checkPasswordResult = await checkPassword(username, password);
   if (checkPasswordResult.error) {
+    console.log('creating user');
     const createUserResult = await createUser(username, password);
     if (createUserResult.error) {
       throw new Error(createUserResult.error);
