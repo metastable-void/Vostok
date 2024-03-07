@@ -101,9 +101,11 @@ const reloadMusicList = async () => {
         child.classList.remove('selected');
       });
       const audio = document.getElementById('audio');
+      audio.pause();
       audio.src = `/files/${encodeURIComponent(dir_name)}/${encodeURIComponent(file.filename)}`;
       audio.oncanplay = () => {
         fileElement.classList.add('selected');
+        audio.currentTime = 0;
       };
     });
   }

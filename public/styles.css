@@ -42,6 +42,12 @@ body {
 #player {
   padding: .25rem .5rem;
   bottom: 0;
+  left: 0;
+  right: 0;
   position: fixed;
   border-top: 1px solid #888;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
 }
