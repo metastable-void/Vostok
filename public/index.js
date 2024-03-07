@@ -103,6 +103,7 @@ const reloadMusicList = async () => {
       const audio = document.getElementById('audio');
       audio.pause();
       audio.src = `/files/${encodeURIComponent(dir_name)}/${encodeURIComponent(file.filename)}`;
+      audio.load();
       audio.oncanplay = () => {
         fileElement.classList.add('selected');
         audio.currentTime = 0;
