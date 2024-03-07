@@ -82,119 +82,148 @@ const upload = multer({
 
 app.set('trust proxy', true);
 
-app.get('/api/users', async (req, res) => {
-  const data = await getData();
-  res.json({
-    users: Object.keys(data.users),
-  });
+app.get('/api/users', async (req, res, next) => {
+  try {
+    const data = await getData();
+    res.json({
+      users: Object.keys(data.users),
+    });
+  } catch (e) {
+    next(e);
+  }
 });
 
-app.get('/api/users/:screen_name', async (req, res) => {
-  const data = await getData();
-  const user = data.users[req.params.screen_name];
-  if (!user) {
-    res.json({ error: 'User not found' });
-    return;
-  }
-  res.json({ user: {
-    screen_name: user.screen_name,
-    data_dir_name: user.data_dir_name,
-  } });
-});
-
-app.get('/api/check-password', async (req, res) => {
-  const { screen_name, password } = req.query;
-  const user = (await getData()).users[screen_name as string];
-  if (!user) {
-    res.json({ error: 'User not found' });
-    return;
-  }
-  const hash = crypto.createHash(user.password_algorithm).update(password as string || '').digest('hex');
-  if (hash !== user.hashed_password) {
-    res.json({ result: false });
-    return;
-  }
-  res.json({ result: true });
-});
-
-app.post('/api/create-or-update-user', async (req, res) => {
-  const { screen_name, password, old_password } = req.query;
-  const data = await getData();
-  let data_dir_name = generateDataDirName();
-  if (data.users[screen_name as string]) {
-    const user = data.users[screen_name as string]!;
-    const hash = crypto.createHash(user.password_algorithm).update(old_password as string || '').digest('hex');
-    if (hash !== user.hashed_password) {
-      res.json({ error: 'Old password is incorrect' });
+app.get('/api/users/:screen_name', async (req, res, next) => {
+  try {
+    const data = await getData();
+    const user = data.users[req.params.screen_name];
+    if (!user) {
+      res.json({ error: 'User not found' });
       return;
     }
-    data_dir_name = user.data_dir_name;
-  }
-  const hash = crypto.createHash(PASSWORD_ALGORITHM).update(password as string || '').digest('hex');
-  data.users[screen_name as string] = {
-    screen_name: String(screen_name),
-    password_algorithm: PASSWORD_ALGORITHM,
-    hashed_password: hash,
-    data_dir_name,
-  };
-  if (!data.files[data_dir_name]) {
-    data.files[data_dir_name] = [];
-  }
-  const dir = path.join(FILES_DIR_PATH, data_dir_name);
-  try {
-    await fs.access(dir);
+    res.json({ user: {
+      screen_name: user.screen_name,
+      data_dir_name: user.data_dir_name,
+    } });
   } catch (e) {
-    await fs.mkdir(dir, { recursive: true });
+    next(e);
   }
-  await saveData(data);
-  res.json({ error: null });
 });
 
-app.post('/api/upload', upload.single('file'), async (req, res) => {
-  const { screen_name, password } = req.query;
-  const user = (await getData()).users[screen_name as string];
-  if (!user) {
-    res.json({ error: 'User not found' });
-    return;
+app.get('/api/check-password', async (req, res, next) => {
+  try {
+    const { screen_name, password } = req.query;
+    const user = (await getData()).users[screen_name as string];
+    if (!user) {
+      res.json({ error: 'User not found' });
+      return;
+    }
+    const hash = crypto.createHash(user.password_algorithm).update(password as string || '').digest('hex');
+    if (hash !== user.hashed_password) {
+      res.json({ result: false });
+      return;
+    }
+    res.json({ result: true });
+  } catch (e) {
+    next(e);
   }
-  const hash = crypto.createHash(user.password_algorithm).update(password as string || '').digest('hex');
-  if (hash !== user.hashed_password) {
-    res.json({ error: 'Password is incorrect' });
-    return;
-  }
-  if (!req.file) {
-    res.json({ error: 'File is not uploaded' });
-    return;
-  }
-  const ext = MIME_WHITELIST[String(req.file.mimetype).toLowerCase()];
-  if (!ext) {
-    res.json({ error: 'Invalid file type' });
-    return;
-  }
-  const filename = `${crypto.randomBytes(8).toString('hex')}${ext}`;
-  const savePath = path.join(FILES_DIR_PATH, user.data_dir_name, filename);
-  await fs.writeFile(savePath, req.file.buffer);
-  const data = await getData();
-  if (!data.files[user.data_dir_name]) {
-    data.files[user.data_dir_name] = [];
-  }
-  data.files[user.data_dir_name]!.push({
-    title: req.file.originalname,
-    filename,
-  });
-  await saveData(data);
-  await fs.unlink(req.file.path);
-  res.json({ error: null });
 });
 
-app.get('/api/files/:data_dir_name', async (req, res) => {
-  const data = await getData();
-  const files = data.files[req.params.data_dir_name];
-  if (!files) {
-    res.json({ error: 'User not found' });
-    return;
+app.post('/api/create-or-update-user', async (req, res, next) => {
+  try {
+    const { screen_name, password, old_password } = req.query;
+    const data = await getData();
+    let data_dir_name = generateDataDirName();
+    if (data.users[screen_name as string]) {
+      const user = data.users[screen_name as string]!;
+      const hash = crypto.createHash(user.password_algorithm).update(old_password as string || '').digest('hex');
+      if (hash !== user.hashed_password) {
+        res.json({ error: 'Old password is incorrect' });
+        return;
+      }
+      data_dir_name = user.data_dir_name;
+    }
+    const hash = crypto.createHash(PASSWORD_ALGORITHM).update(password as string || '').digest('hex');
+    data.users[screen_name as string] = {
+      screen_name: String(screen_name),
+      password_algorithm: PASSWORD_ALGORITHM,
+      hashed_password: hash,
+      data_dir_name,
+    };
+    if (!data.files[data_dir_name]) {
+      data.files[data_dir_name] = [];
+    }
+    const dir = path.join(FILES_DIR_PATH, data_dir_name);
+    try {
+      await fs.access(dir);
+    } catch (e) {
+      await fs.mkdir(dir, { recursive: true });
+    }
+    await saveData(data);
+    res.json({ error: null });
+  } catch (e) {
+    next(e);
   }
-  res.json({ files });
+});
+
+app.post('/api/upload', upload.single('file'), async (req, res, next) => {
+  try {
+    const { screen_name, password } = req.query;
+    const user = (await getData()).users[screen_name as string];
+    if (!user) {
+      res.json({ error: 'User not found' });
+      return;
+    }
+    const hash = crypto.createHash(user.password_algorithm).update(password as string || '').digest('hex');
+    if (hash !== user.hashed_password) {
+      res.json({ error: 'Password is incorrect' });
+      return;
+    }
+    if (!req.file) {
+      res.json({ error: 'File is not uploaded' });
+      return;
+    }
+    const ext = MIME_WHITELIST[String(req.file.mimetype).toLowerCase()];
+    if (!ext) {
+      res.json({ error: 'Invalid file type' });
+      return;
+    }
+    const filename = `${crypto.randomBytes(8).toString('hex')}${ext}`;
+    const savePath = path.join(FILES_DIR_PATH, user.data_dir_name, filename);
+    await fs.writeFile(savePath, req.file.buffer);
+    const data = await getData();
+    if (!data.files[user.data_dir_name]) {
+      data.files[user.data_dir_name] = [];
+    }
+    data.files[user.data_dir_name]!.push({
+      title: req.file.originalname,
+      filename,
+    });
+    await saveData(data);
+    await fs.unlink(req.file.path);
+    res.json({ error: null });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.get('/api/files/:data_dir_name', async (req, res, next) => {
+  try {
+    const data = await getData();
+    const files = data.files[req.params.data_dir_name];
+    if (!files) {
+      res.json({ error: 'User not found' });
+      return;
+    }
+    res.json({ files });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(error);
+  res.status(400).json({ error: error.message || String(error) });
 });
 
 app.listen(PORT, '127.0.0.1', () => {
