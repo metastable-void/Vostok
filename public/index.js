@@ -92,6 +92,7 @@ const reloadMusicList = async () => {
     return;
   }
   const filesList = document.getElementById('music');
+  filesList.textContent = '';
   for (const file of files) {
     const fileElement = document.createElement('li');
     fileElement.textContent = file.title;
