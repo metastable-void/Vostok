@@ -81,7 +81,6 @@ const upload = multer({
 });
 
 app.set('trust proxy', true);
-app.set('listen', '127.0.0.1');
 
 app.get('/api/users', async (req, res) => {
   const data = await getData();
@@ -198,6 +197,6 @@ app.get('/api/files/:data_dir_name', async (req, res) => {
   res.json({ files });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '127.0.0.1', () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
