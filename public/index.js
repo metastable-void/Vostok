@@ -106,13 +106,13 @@ const reloadMusicList = async () => {
   }
 };
 
-document.getElementById('sign-in').addEventListener('click', () => {
+document.getElementById('sign-in').addEventListener('click', async () => {
   try {
-    signInOrSignUp();
+    await signInOrSignUp();
     document.getElementById('password').value = '';
     document.getElementById('signed-out').hidden = true;
     document.getElementById('signed-in').hidden = false;
-    reloadMusicList();
+    await reloadMusicList();
   } catch (e) {
     console.error(e);
     displayError(e);
