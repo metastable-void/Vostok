@@ -131,6 +131,10 @@ document.getElementById('sign-out').addEventListener('click', () => {
   signedInPassword = null;
   document.getElementById('signed-in').hidden = true;
   document.getElementById('signed-out').hidden = false;
+  const audio = document.getElementById('audio');
+  audio.pause();
+  audio.src = '';
+  audio.load();
 });
 
 document.getElementById('file').addEventListener('change', async (e) => {
