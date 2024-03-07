@@ -46,8 +46,62 @@ const signInOrSignUp = async () => {
     if (!checkPasswordResult.result) {
       throw new Error('Incorrect password');
     }
-    signedInUser = username;
-    signedInPassword = password;
+  }
+  signedInUser = username;
+  signedInPassword = password;
+  document.getElementById('signed-in-username').textContent = signedInUser;
+};
+
+const reloadMusicList = async () => {
+  let files;
+  let dir_name;
+  try {
+    const userInfoResponse = await fetch(`/api/users/${encodeURIComponent(screen_name)}`, {
+      method: 'GET',
+    });
+    if (!userInfoResponse.ok) {
+      throw new Error('Error getting user info');
+    }
+    const userInfo = await userInfoResponse.json();
+    if (userInfo.error) {
+      throw new Error(userInfo.error);
+    }
+    const {data_dir_name} = userInfo;
+    const filesResponse = await fetch(`/api/files/${encodeURIComponent(data_dir_name)}`, {
+      method: 'GET',
+    });
+    if (!filesResponse.ok) {
+      throw new Error('Error getting files');
+    }
+    const response = await filesResponse.json();
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    if (!response.files) {
+      throw new Error('No files found');
+    }
+    files = response.files;
+    dir_name = data_dir_name;
+  } catch (e) {
+    console.error(e);
+    displayError(e);
+    return;
+  }
+  const filesList = document.getElementById('music');
+  for (const file of files) {
+    const fileElement = document.createElement('li');
+    fileElement.textContent = file.title;
+    filesList.appendChild(fileElement);
+    fileElement.addEventListener('click', async () => {
+      [... filesList.children].forEach((child) => {
+        child.classList.remove('selected');
+      });
+      const audio = document.getElementById('audio');
+      audio.src = `/files/${encodeURIComponent(dir_name)}/${encodeURIComponent(file.filename)}`;
+      audio.oncanplay = () => {
+        fileElement.classList.add('selected');
+      };
+    });
   }
 };
 
@@ -69,4 +123,43 @@ document.getElementById('sign-out').addEventListener('click', () => {
   signedInPassword = null;
   document.getElementById('signed-in').hidden = true;
   document.getElementById('signed-out').hidden = false;
+});
+
+document.getElementById('file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) {
+    document.getElementById('file-size').textContent = '-';
+    return;
+  }
+  document.getElementById('file-size').textContent = file.size;
+});
+
+document.getElementById('upload').addEventListener('click', async () => {
+  const file = document.getElementById('file').files[0];
+  if (!file) {
+    displayError('No file selected');
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const queryParams = new URLSearchParams({ screen_name: signedInUser, password: signedInPassword });
+
+    const response = await fetch(`/api/upload?${queryParams}`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error('Error uploading file');
+    }
+    const result = await response.json();
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    document.getElementById('file').value = '';
+  } catch (e) {
+    console.error(e);
+    displayError(e);
+  }
 });

@@ -1,0 +1,37 @@
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#error {
+  color: red;
+}
+
+#music {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#music > li {
+  padding: .5em 1em;
+}
+
+#music > li:nth-child(odd) {
+  background-color: #f0f0f0;
+}
+
+#music > li:nth-child(even) {
+  background-color: #e0e0e0;
+}
+
+#music > li:hover {
+  background-color: #d0d0d0;
+}
+
+#music > li.selected {
+  background-color: #5777b2;
+  color: white;
+}
