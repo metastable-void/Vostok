@@ -191,7 +191,7 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
     }
     const filename = `${crypto.randomBytes(8).toString('hex')}${ext}`;
     const savePath = path.join(FILES_DIR_PATH, user.data_dir_name, filename);
-    await fs.writeFile(savePath, req.file.buffer);
+    await fs.rename(req.file.path, savePath);
     const data = await getData();
     if (!data.files[user.data_dir_name]) {
       data.files[user.data_dir_name] = [];
@@ -201,7 +201,6 @@ app.post('/api/upload', upload.single('file'), async (req, res, next) => {
       filename,
     });
     await saveData(data);
-    await fs.unlink(req.file.path);
     res.json({ error: null });
   } catch (e) {
     next(e);
