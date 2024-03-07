@@ -25,6 +25,7 @@ const MIME_WHITELIST: Record<string, string> = {
   'audio/mp4': '.m4a',
   'audio/mpeg': '.mp3',
   'audio/wav': '.wav',
+  'audio/x-wav': '.wav',
   'audio/flac': '.flac',
   'audio/x-matroska': '.mka',
 };
