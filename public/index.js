@@ -56,7 +56,7 @@ const reloadMusicList = async () => {
   let files;
   let dir_name;
   try {
-    const userInfoResponse = await fetch(`/api/users/${encodeURIComponent(screen_name)}`, {
+    const userInfoResponse = await fetch(`/api/users/${encodeURIComponent(signedInUser)}`, {
       method: 'GET',
     });
     if (!userInfoResponse.ok) {
