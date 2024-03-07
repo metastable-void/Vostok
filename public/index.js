@@ -67,7 +67,10 @@ const reloadMusicList = async () => {
     if (userInfo.error) {
       throw new Error(userInfo.error);
     }
-    const {data_dir_name} = userInfo;
+    const {data_dir_name} = userInfo.user ?? {};
+    if (!data_dir_name) {
+      throw new Error('No data directory found');
+    }
     const filesResponse = await fetch(`/api/files/${encodeURIComponent(data_dir_name)}`, {
       method: 'GET',
     });
