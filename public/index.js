@@ -107,7 +107,6 @@ const reloadMusicList = async () => {
       audio.load();
       audio.oncanplay = () => {
         fileElement.classList.add('selected');
-        audio.currentTime = 0;
       };
     });
   }
