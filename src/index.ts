@@ -81,6 +81,7 @@ const upload = multer({
 });
 
 app.set('trust proxy', true);
+app.set('listen', '127.0.0.1');
 
 app.get('/api/users', async (req, res) => {
   const data = await getData();
